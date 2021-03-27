@@ -18,115 +18,116 @@ export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const bucket = new s3.Bucket(this, "VirtualLollyWebsiteBucket", {
-    //   publicReadAccess: true,
-    //   websiteIndexDocument: 'index.html'
-    // })
+    const bucket = new s3.Bucket(this, "VirtualLollyWebsiteBucket", {
+      publicReadAccess: true,
+      websiteIndexDocument: 'index.html'
+    })
 
-    // new s3Deploy.BucketDeployment(this, "bucketDeployment", {
-    //   sources: [s3Deploy.Source.asset("../public")],
-    //   destinationBucket: bucket
-    // })
+    new s3Deploy.BucketDeployment(this, "bucketDeployment", {
+      sources: [s3Deploy.Source.asset("../frontend/public")],
+      destinationBucket: bucket
+    })
 
-    // new cloudfront.CloudFrontWebDistribution(this, "DistributionForVirtualLolly", {
-    //   originConfigs: [
-    //     {
-    //       s3OriginSource: {
-    //         s3BucketSource: bucket
-    //       },
-    //       behaviors: [{
-    //         isDefaultBehavior: true
-    //       }]
-    //     }
-    //   ]
-    // })
+    new cloudfront.CloudFrontWebDistribution(this, "DistributionForVirtualLolly", {
+      originConfigs: [
+        {
+          s3OriginSource: {
+            s3BucketSource: bucket
+          },
+          behaviors: [{
+            isDefaultBehavior: true
+          }]
+        }
+      ]
+    })
 
-    // const s3Build = new CodeBuild.PipelineProject(this, 's3Build', {
-    //   buildSpec: CodeBuild.BuildSpec.fromObject({
-    //     version: '0.2',
-    //     phases: {
-    //       install: {
-    //         "runtime-versions": {
-    //           "nodejs": 12
-    //         },
-    //         commands: [
-    //           'npm install -g gatsby',
-    //           "npm install -g yarn"
-    //         ],
-    //       },
-    //       pre_build: {
-    //         commands: [
-    //           "yarn",
-    //         ]
-    //       },
-    //       build: {
-    //         commands: [
-    //           'gatsby build',
-    //         ],
-    //       },
-    //     },
-    //     artifacts: {
-    //       'base-directory': './public',   ///outputting our generated Gatsby Build files to the public directory
-    //       "files": [
-    //         '**/*'
-    //       ]
-    //     },
-    //   }),
-    //   environment: {
-    //     buildImage: CodeBuild.LinuxBuildImage.STANDARD_3_0,   ///BuildImage version 3 because we are using nodejs environment 12
-    //   },
-    // });
+    const s3Build = new CodeBuild.PipelineProject(this, 's3Build', {
+      buildSpec: CodeBuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          install: {
+            "runtime-versions": {
+              "nodejs": 12
+            },
+            commands: [
+              'cd frontend', 
+              'npm install -g gatsby',
+              "npm install -g yarn"
+            ],
+          },
+          pre_build: {
+            commands: [
+              "yarn",
+            ]
+          },
+          build: {
+            commands: [
+              'gatsby build',
+            ],
+          },
+        },
+        artifacts: {
+          'base-directory': './frontend/public',   ///outputting our generated Gatsby Build files to the public directory
+          "files": [
+            '**/*'
+          ]
+        },
+      }),
+      environment: {
+        buildImage: CodeBuild.LinuxBuildImage.STANDARD_3_0,   ///BuildImage version 3 because we are using nodejs environment 12
+      },
+    });
 
-    // const policy = new PolicyStatement();
-    // policy.addActions("s3:*")
-    // policy.addResources("*")
-    // s3Build.addToRolePolicy(policy)
+    const policy = new PolicyStatement();
+    policy.addActions("s3:*")
+    policy.addResources("*")
+    s3Build.addToRolePolicy(policy)
 
-    // const sourceOutput = new CodePipeline.Artifact();
+    const sourceOutput = new CodePipeline.Artifact();
 
-    // const s3Output = new CodePipeline.Artifact();
+    const s3Output = new CodePipeline.Artifact();
 
-    // const pipeline = new CodePipeline.Pipeline(this, "VirtualLollyDeploymentPipeline", {
-    //   crossAccountKeys: false,
-    //   restartExecutionOnUpdate: true
-    // })
+    const pipeline = new CodePipeline.Pipeline(this, "VirtualLollyDeploymentPipeline", {
+      crossAccountKeys: false,
+      restartExecutionOnUpdate: true
+    })
 
-    // pipeline.addStage({
-    //   stageName: "Source",
-    //   actions: [
-    //     new CodePipelineAction.GitHubSourceAction({
-    //       actionName: "Checkout",
-    //       owner: "shariqanwar20",
-    //       repo: "Virtual-Lolly-AWS",
-    //       oauthToken: cdk.SecretValue.plainText("0dde5ef459a6e527b809458ee9759910acec1dab"),
-    //       output: sourceOutput,
-    //       branch: "master"
-    //     })
-    //   ]
-    // })
+    pipeline.addStage({
+      stageName: "Source",
+      actions: [
+        new CodePipelineAction.GitHubSourceAction({
+          actionName: "Checkout",
+          owner: "shariqanwar20",
+          repo: "Virtual-Lolly-With-AWS",
+          oauthToken: cdk.SecretValue.plainText("0dde5ef459a6e527b809458ee9759910acec1dab"),
+          output: sourceOutput,
+          branch: "master"
+        })
+      ]
+    })
 
-    // pipeline.addStage({
-    //   stageName: "Build",
-    //   actions: [
-    //     new CodePipelineAction.CodeBuildAction({
-    //       actionName: "s3Build",
-    //       project: s3Build,
-    //       input: sourceOutput,
-    //       outputs: [s3Output]
-    //     })
-    //   ]
-    // })
+    pipeline.addStage({
+      stageName: "Build",
+      actions: [
+        new CodePipelineAction.CodeBuildAction({
+          actionName: "s3Build",
+          project: s3Build,
+          input: sourceOutput,
+          outputs: [s3Output]
+        })
+      ]
+    })
 
-    // pipeline.addStage({
-    //   stageName: "Deploy",
-    //   actions: [
-    //     new CodePipelineAction.S3DeployAction({
-    //       actionName: "DeployToS3",
-    //       input: s3Output,
-    //       bucket: bucket
-    //     })
-    //   ]
-    // })
+    pipeline.addStage({
+      stageName: "Deploy",
+      actions: [
+        new CodePipelineAction.S3DeployAction({
+          actionName: "DeployToS3",
+          input: s3Output,
+          bucket: bucket
+        })
+      ]
+    })
 
     // const amplifyApp = new amlify.App(this, "VirtualLollyApp", {
     //   sourceCodeProvider: new amlify.GitHubSourceCodeProvider({
@@ -205,13 +206,13 @@ export class BackendStack extends cdk.Stack {
     virtualLollyLambda.addEnvironment("TABLE_NAME", virtualLollyTable.tableName)
     virtualLollyTable.grantFullAccess(virtualLollyLambda);
 
-    // const codeRebuildRule = new events.Rule(this, "RebuildCodePipeline", {
-    //   targets: [new targets.CodePipeline(pipeline)],
-    //   description: "Rebuild the code pipeline when this event is sent to eventbus",
-    //   eventPattern: {
-    //     source: ["rebuildCodePipeline"],
-    //   }
-    // })
+    const codeRebuildRule = new events.Rule(this, "RebuildCodePipeline", {
+      targets: [new targets.CodePipeline(pipeline)],
+      description: "Rebuild the code pipeline when this event is sent to eventbus",
+      eventPattern: {
+        source: ["rebuildCodePipeline"],
+      }
+    })
 
     new cdk.CfnOutput(this, "GraphqlUrl", {
       value: api.graphqlUrl
