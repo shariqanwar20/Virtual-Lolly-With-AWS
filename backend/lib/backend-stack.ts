@@ -192,6 +192,11 @@ export class BackendStack extends cdk.Stack {
     })
 
     lambdaDataSource.createResolver({
+      typeName: "Query",
+      fieldName: "getLollyById"
+    })
+
+    lambdaDataSource.createResolver({
       typeName: "Mutation",
       fieldName: "addLolly"
     })

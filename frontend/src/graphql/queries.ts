@@ -15,3 +15,16 @@ export const getLollies = /* GraphQL */ `
     }
   }
 `;
+export const getLollyById = /* GraphQL */ `
+  query GetLollyById($id: ID!) {
+    getLollyById(id: $id) {
+      id
+      sender
+      reciever
+      message
+      lollyTop
+      lollyMiddle
+      lollyBottom
+    }
+  }
+`;

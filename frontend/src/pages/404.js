@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Link } from "gatsby"
+import { Link, navigate } from "gatsby"
 
 // styles
 const pageStyles = {
@@ -25,7 +25,15 @@ const codeStyles = {
 }
 
 // markup
-const NotFoundPage = () => {
+const NotFoundPage = ({ location }) => {
+  const path = location.pathname;
+  console.log("pathname: ", path);
+  const id = path.substring(7)
+  console.log(path.substring(0, 6));
+
+  const compare = `${path.substring(0, 6)}`;
+  if (compare.match("/lolly"))
+    navigate(`/viewLolly?id=${id}`)
   return (
     <main style={pageStyles}>
       <title>Not found</title>

@@ -51,3 +51,20 @@ export type GetLolliesQuery = {
     lollyBottom: string,
   } | null > | null,
 };
+
+export type GetLollyByIdQueryVariables = {
+  id?: string,
+};
+
+export type GetLollyByIdQuery = {
+  getLollyById?:  {
+    __typename: "Lolly",
+    id: string,
+    sender: string,
+    reciever: string,
+    message: string,
+    lollyTop: string,
+    lollyMiddle: string,
+    lollyBottom: string,
+  } | null,
+};
