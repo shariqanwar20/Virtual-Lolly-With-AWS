@@ -3,37 +3,37 @@
 
 const path = require("path");
 require("dotenv").config();
-const AWS = require("aws-sdk")
+// const AWS = require("aws-sdk")
 
 exports.createPages = async function ({ actions, graphql }) {
   try {
-      const docClient = new AWS.DynamoDB.DocumentClient({
-        region: "us-east-2"
-      });
+      // const docClient = new AWS.DynamoDB.DocumentClient({
+      //   region: "us-east-2"
+      // });
 
-      const params = {
-        TableName: "VirtualLolly"
-      }
-      const data = await docClient.scan(params).promise()
-      console.log(data.Items);
+      // const params = {
+      //   TableName: "VirtualLolly"
+      // }
+      // const data = await docClient.scan(params).promise()
+      // console.log(data.Items);
 
-      // const data = await graphql(`
-      //   query MyQuery {
-      //     Lollies {
-      //       getLollies {
-      //         id
-      //         lollyBottom
-      //         lollyMiddle
-      //         lollyTop
-      //         message
-      //         reciever
-      //         sender
-      //       }
-      //     }
-      //   }
-      // `)
+      const data = await graphql(`
+        query MyQuery {
+          Lollies {
+            getLollies {
+              id
+              lollyBottom
+              lollyMiddle
+              lollyTop
+              message
+              reciever
+              sender
+            }
+          }
+        }
+      `)
       // const lollies  = data.data.Lollies.getLollies
-      data!== null && data.Items.forEach((lolly) => {
+      data!== null && data.data.Lollies.getLollies.forEach((lolly) => {
         console.log(lolly);
         actions.createPage({
           path: `lolly/${lolly.id}`,
