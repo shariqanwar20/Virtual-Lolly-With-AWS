@@ -25,7 +25,7 @@ export default (props) => {
   useEffect(() => {
     fetchTodoByID().then((data) => {
       console.log("data from useeffect==.", data);
-      if (!data)
+      if (!data.data.getLollyById)
         navigate("/404")
       setData(data.data.getLollyById)
       setLoading(false);
