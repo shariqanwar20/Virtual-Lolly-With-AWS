@@ -99,7 +99,7 @@ export class BackendStack extends cdk.Stack {
           actionName: "Checkout",
           owner: "shariqanwar20",
           repo: "Virtual-Lolly-With-AWS",
-          oauthToken: cdk.SecretValue.plainText("0dde5ef459a6e527b809458ee9759910acec1dab"),
+          oauthToken: cdk.SecretValue.plainText("YOUR_GITHUB_TOKEN"),
           output: sourceOutput,
           branch: "master"
         })
